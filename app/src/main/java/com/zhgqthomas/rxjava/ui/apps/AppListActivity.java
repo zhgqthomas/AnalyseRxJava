@@ -90,16 +90,11 @@ public class AppListActivity extends BaseActivity {
         final Intent mainIntent = new Intent(Intent.ACTION_MAIN);
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 
-         return Observable.from(this.getPackageManager().queryIntentActivities(mainIntent, 0))
-                .map(new Func1<ResolveInfo, AppInfoRich>() {
+        return Observable.from(this.getPackageManager().queryIntentActivities(mainIntent, 0))
+                .map(new Func1<ResolveInfo, AppInfo>() {
                     @Override
-                    public AppInfoRich call(ResolveInfo info) {
-                        return new AppInfoRich(AppListActivity.this, info);
-                    }
-                })
-                .map(new Func1<AppInfoRich, AppInfo>() {
-                    @Override
-                    public AppInfo call(AppInfoRich appInfoRich) {
+                    public AppInfo call(ResolveInfo info) {
+                        AppInfoRich appInfoRich = new AppInfoRich(AppListActivity.this, info);
                         Bitmap icon = BitmapUtils.drawableToBitmap(appInfoRich.getIcon());
                         String name = appInfoRich.getName();
                         String iconPath = App.getInstance().getFilesDir() + "/" + name;
