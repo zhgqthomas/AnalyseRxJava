@@ -6,4 +6,6 @@
     <string name="range">Range</string>
     <string name="interval">Interval</string>
     <string name="timer">Timer</string>
+
+    <string name="operator">操作符</string>
 </resources>

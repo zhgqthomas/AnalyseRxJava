@@ -1,5 +1,6 @@
 package com.zhgqthomas.rxjava.ui.apps;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
@@ -42,6 +43,10 @@ import rx.schedulers.Schedulers;
 public class AppListActivity extends BaseActivity {
 
     private static final String TAG = LogUtils.makeLogTag(AppListActivity.class);
+
+    public static Intent getStartIntent(Context context) {
+        return new Intent(context, AppListActivity.class);
+    }
 
     @BindView(R.id.apps_recycler_view)
     RecyclerView mAppsRecyclerView;
