@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">AnalyseRxJava</string>
+    <string name="just">Just</string>
+    <string name="repeat">Repeat</string>
+    <string name="defer">Defer</string>
+    <string name="range">Range</string>
+    <string name="interval">Interval</string>
+    <string name="timer">Timer</string>
 </resources>

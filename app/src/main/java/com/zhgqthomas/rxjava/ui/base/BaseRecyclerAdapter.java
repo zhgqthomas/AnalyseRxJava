@@ -126,6 +126,11 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<BaseRe
         }
     }
 
+    public void add(T item) {
+        mData.add(item);
+        notifyDataSetChanged();
+    }
+
     public void add(int pos, T item) {
         mData.add(pos, item);
         notifyItemInserted(pos);
@@ -134,6 +139,11 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<BaseRe
     public void delete(int pos) {
         mData.remove(pos);
         notifyItemRemoved(pos);
+    }
+
+    public void clear() {
+        mData.clear();
+        notifyDataSetChanged();
     }
 
     public void addMoreData(List<T> data) {

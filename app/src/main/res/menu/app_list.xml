@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/just"
+        android:title="@string/just"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/repeat"
+        android:title="@string/repeat"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/defer"
+        android:title="@string/defer"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/range"
+        android:title="@string/range"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/interval"
+        android:title="@string/interval"
+        app:showAsAction="never" />
+</menu>
