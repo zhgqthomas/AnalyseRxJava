@@ -23,7 +23,73 @@
         app:showAsAction="never" />
 
     <item
+
         android:id="@+id/interval"
         android:title="@string/interval"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/filter"
+        android:title="@string/filter"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/take"
+        android:title="@string/take"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/take_last"
+        android:title="@string/take_last"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/distinct"
+        android:title="@string/distinct"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/distinct_until_changed"
+        android:title="@string/distinct_until_changed"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/first"
+        android:title="@string/first"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/last"
+        android:title="@string/last"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/skip"
+        android:title="@string/skip"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/skip_last"
+        android:title="@string/skip_last"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/element_at"
+        android:title="@string/element_at"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/sample"
+        android:title="@string/sampling"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/timeout"
+        android:title="@string/timeout"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/debounce"
+        android:title="@string/debounce"
         app:showAsAction="never" />
 </menu>

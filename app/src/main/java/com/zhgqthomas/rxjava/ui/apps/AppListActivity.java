@@ -56,6 +56,10 @@ public class AppListActivity extends BaseActivity {
     private AppListAdapter mAppsAdapter;
     private List<AppInfo> mAppInfos = new ArrayList<>();
     private Subscription mInterval;
+    private Subscription mDistinctInterval;
+    private Subscription mSampleInterval;
+    private Subscription mTimeoutInterval;
+    private Subscription mDebounceInterval;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +92,12 @@ public class AppListActivity extends BaseActivity {
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unsubscribe();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.app_list, menu);
         return true;
@@ -111,9 +121,284 @@ public class AppListActivity extends BaseActivity {
             case R.id.interval:
                 performInterval();
                 return true;
+            case R.id.filter:
+                performFilter();
+                return true;
+            case R.id.take:
+                performTake();
+                return true;
+            case R.id.take_last:
+                performTakeLast();
+                return true;
+            case R.id.distinct:
+                performDistinct();
+                return true;
+            case R.id.distinct_until_changed:
+                performDistinctUntilChanged();
+                return true;
+            case R.id.first:
+                performFirst();
+                return true;
+            case R.id.last:
+                performLast();
+                return true;
+            case R.id.skip:
+                performSkip();
+                return true;
+            case R.id.skip_last:
+                performSkipLast();
+                return true;
+            case R.id.element_at:
+                performElementAt();
+                return true;
+            case R.id.sample:
+                performSample();
+                return true;
+            case R.id.timeout:
+                performTimeout();
+                return true;
+            case R.id.debounce:
+                performDebounce();
+                return true;
             default:
                 return false;
         }
+    }
+
+    private void performDebounce() {
+        mAppsAdapter.clear();
+        mDebounceInterval = Observable.interval(2, TimeUnit.SECONDS)
+                .map(new Func1<Long, AppInfo>() {
+                    @Override
+                    public AppInfo call(Long aLong) {
+                        if (aLong.intValue() == mAppInfos.size() - 1) {
+                            if (!mDebounceInterval.isUnsubscribed()) {
+                                mDebounceInterval.unsubscribe();
+                            }
+                        }
+                        return mAppInfos.get(aLong.intValue());
+                    }
+                })
+                .debounce(1, TimeUnit.SECONDS) // 修改数值来显示不同的结果
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<AppInfo>() {
+                    @Override
+                    public void call(AppInfo appInfo) {
+                        mAppsAdapter.add(appInfo);
+                    }
+                });
+    }
+
+    private void performTimeout() {
+        mAppsAdapter.clear();
+        mTimeoutInterval = Observable.interval(1, 3, TimeUnit.SECONDS)  // 第 1 秒时发射一个 AppInfo, 之后每隔 3 秒发射一个 AppInfo
+                .map(new Func1<Long, AppInfo>() {
+                    @Override
+                    public AppInfo call(Long aLong) {
+                        if (aLong.intValue() == mAppInfos.size() - 3) {
+                            if (!mTimeoutInterval.isUnsubscribed()) {
+                                mTimeoutInterval.unsubscribe();
+                            }
+                        }
+                        return mAppInfos.get(aLong.intValue());
+                    }
+                })
+                .timeout(2, TimeUnit.SECONDS) // 超时时间设置为 2 秒
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<AppInfo>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        ToastUtils.SHORT.show(getBaseContext(), "Timeout!!!!");
+                    }
+
+                    @Override
+                    public void onNext(AppInfo appInfo) {
+                        mAppsAdapter.add(appInfo);
+                    }
+                });
+    }
+
+    private void performSample() { // 每秒发出一个 AppInfo，但是每隔三秒的时候才显示出来
+        mAppsAdapter.clear();
+        mSampleInterval = Observable.interval(1, TimeUnit.SECONDS)
+                .map(new Func1<Long, AppInfo>() {
+                    @Override
+                    public AppInfo call(Long aLong) {
+                        if (aLong.intValue() == mAppInfos.size() - 1) {
+                            if (!mSampleInterval.isUnsubscribed()) {
+                                mSampleInterval.unsubscribe();
+                            }
+                        }
+                        return null;
+                    }
+                })
+                .sample(3, TimeUnit.SECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<AppInfo>() {
+                    @Override
+                    public void call(AppInfo appInfo) {
+                        mAppsAdapter.add(appInfo);
+                    }
+                });
+    }
+
+    private void performElementAt() { // 发射序列中的第 4 个元素，如果没有默认发射序列中第一个元素
+        mAppsAdapter.clear();
+        Observable.from(mAppInfos)
+                .elementAtOrDefault(3, mAppInfos.get(0))
+                .subscribe(new Action1<AppInfo>() {
+                    @Override
+                    public void call(AppInfo appInfo) {
+                        mAppsAdapter.add(appInfo);
+                    }
+                });
+    }
+
+    private void performSkipLast() { // 跳过最后两条 AppInfo
+        mAppsAdapter.clear();
+        Observable.from(mAppInfos)
+                .skipLast(2)
+                .subscribe(new Action1<AppInfo>() {
+                    @Override
+                    public void call(AppInfo appInfo) {
+                        mAppsAdapter.add(appInfo);
+                    }
+                });
+    }
+
+    private void performSkip() { // 跳过头两条 AppInfo
+        mAppsAdapter.clear();
+        Observable.from(mAppInfos)
+                .skip(2)
+                .subscribe(new Action1<AppInfo>() {
+                    @Override
+                    public void call(AppInfo appInfo) {
+                        mAppsAdapter.add(appInfo);
+                    }
+                });
+    }
+
+    private void performLast() { // 过滤出序列中最后一个以 C 开头的 AppInfo
+        mAppsAdapter.clear();
+        Observable.from(mAppInfos)
+                .last(new Func1<AppInfo, Boolean>() {
+                    @Override
+                    public Boolean call(AppInfo appInfo) {
+                        return appInfo.getName().startsWith("C");
+                    }
+                })
+                .subscribe(new Action1<AppInfo>() {
+                    @Override
+                    public void call(AppInfo appInfo) {
+                        mAppsAdapter.add(appInfo);
+                    }
+                });
+    }
+
+    private void performFirst() { // 过滤出序列中第一个以 C 开头的 AppInfo
+        mAppsAdapter.clear();
+        Observable.from(mAppInfos)
+                .first(new Func1<AppInfo, Boolean>() {
+                    @Override
+                    public Boolean call(AppInfo appInfo) {
+                        return appInfo.getName().startsWith("C");
+                    }
+                })
+                .subscribe(new Action1<AppInfo>() {
+                    @Override
+                    public void call(AppInfo appInfo) {
+                        mAppsAdapter.add(appInfo);
+                    }
+                });
+    }
+
+    private void performDistinctUntilChanged() {
+        mAppsAdapter.clear();
+        mDistinctInterval = Observable.interval(2, TimeUnit.SECONDS)
+                .map(new Func1<Long, AppInfo>() {
+                    @Override
+                    public AppInfo call(Long aLong) {
+
+                        if (aLong.intValue() == mAppInfos.size() - 3) {
+                            if (!mDistinctInterval.isUnsubscribed()) {
+                                mDistinctInterval.unsubscribe();
+                            }
+                        }
+
+                        if (aLong.intValue() % 3 == 0) {
+                            return mAppInfos.get(aLong.intValue());
+                        }
+
+                        return mAppInfos.get(3);
+                    }
+                })
+                .distinctUntilChanged()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<AppInfo>() {
+                    @Override
+                    public void call(AppInfo appInfo) {
+                        mAppsAdapter.add(appInfo);
+                    }
+                });
+    }
+
+    private void performDistinct() { // 获取序列的头三条数据，然后重复三次，最后将重复去掉
+        mAppsAdapter.clear();
+        Observable.from(mAppInfos)
+                .take(3)
+                .repeat(3)
+                .distinct()
+                .subscribe(new Action1<AppInfo>() {
+                    @Override
+                    public void call(AppInfo appInfo) {
+                        mAppsAdapter.add(appInfo);
+                    }
+                });
+    }
+
+    private void performTakeLast() {
+        mAppsAdapter.clear();
+        Observable.from(mAppInfos)
+                .takeLast(5)
+                .subscribe(new Action1<AppInfo>() {
+                    @Override
+                    public void call(AppInfo appInfo) {
+                        mAppsAdapter.add(appInfo);
+                    }
+                });
+    }
+
+    private void performTake() {
+        mAppsAdapter.clear();
+        Observable.from(mAppInfos)
+                .take(5)
+                .subscribe(new Action1<AppInfo>() {
+                    @Override
+                    public void call(AppInfo appInfo) {
+                        mAppsAdapter.add(appInfo);
+                    }
+                });
+    }
+
+    private void performFilter() {
+        mAppsAdapter.clear();
+        Observable.from(mAppInfos)
+                .filter(new Func1<AppInfo, Boolean>() {
+                    @Override
+                    public Boolean call(AppInfo appInfo) { // 过滤出以 C 开头的 AppInfo
+                        return appInfo.getName().startsWith("C");
+                    }
+                })
+                .subscribe(new Action1<AppInfo>() {
+                    @Override
+                    public void call(AppInfo appInfo) {
+                        mAppsAdapter.add(appInfo);
+                    }
+                });
     }
 
     private void performInterval() { // 每 2 秒显示一个 AppInfo
@@ -123,7 +408,7 @@ public class AppListActivity extends BaseActivity {
                     @Override
                     public AppInfo call(Long index) {
                         if (index.intValue() < 5) {
-                            if (mInterval.isUnsubscribed()) {
+                            if (!mInterval.isUnsubscribed()) {
                                 mInterval.unsubscribe();
                             }
                         }
@@ -178,31 +463,31 @@ public class AppListActivity extends BaseActivity {
     }
 
     private void performRepeat() {
+        mAppsAdapter.clear();
         Observable.just(mAppInfos.get(0), mAppInfos.get(1), mAppInfos.get(2))
                 .repeat(3)
-                .toSortedList()
-                .subscribe(new Action1<List<AppInfo>>() {
+                .subscribe(new Action1<AppInfo>() {
                     @Override
-                    public void call(List<AppInfo> appInfos) {
-                        mAppsAdapter.clear();
-                        mAppsAdapter.setData(appInfos);
+                    public void call(AppInfo appInfo) {
+                        mAppsAdapter.add(appInfo);
                     }
                 });
     }
 
     private void performJust() {
+        mAppsAdapter.clear();
         Observable.just(mAppInfos.get(0), mAppInfos.get(1), mAppInfos.get(2))
-                .toSortedList()
-                .subscribe(new Action1<List<AppInfo>>() {
+                .subscribe(new Action1<AppInfo>() {
                     @Override
-                    public void call(List<AppInfo> appInfos) {
-                        mAppsAdapter.clear();
-                        mAppsAdapter.setData(appInfos);
+                    public void call(AppInfo appInfo) {
+                        mAppsAdapter.add(appInfo);
                     }
                 });
     }
 
     private void refreshAppList() {
+        unsubscribe();
+
         getApps().toSortedList()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -242,5 +527,27 @@ public class AppListActivity extends BaseActivity {
                         return new AppInfo(name, iconPath, appInfoRich.getLastUpdateTime());
                     }
                 });
+    }
+
+    private void unsubscribe() {
+        if (null != mInterval && !mInterval.isUnsubscribed()) {
+            mInterval.unsubscribe();
+        }
+
+        if (null != mDistinctInterval && !mDistinctInterval.isUnsubscribed()) {
+            mDistinctInterval.unsubscribe();
+        }
+
+        if (null != mSampleInterval && !mSampleInterval.isUnsubscribed()) {
+            mSampleInterval.unsubscribe();
+        }
+
+        if (null != mTimeoutInterval && !mTimeoutInterval.isUnsubscribed()) {
+            mTimeoutInterval.unsubscribe();
+        }
+
+        if (null != mDebounceInterval && !mDebounceInterval.isUnsubscribed()) {
+            mDebounceInterval.unsubscribe();
+        }
     }
 }
