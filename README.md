@@ -215,7 +215,335 @@ private void performInterval() { // 每 2 秒显示一个 AppInfo
 ### timer()
 `timer()` 已作废，请参考 `interval()`
 
+### filter()
+此函数示意图为:
+
+![](http://upload-images.jianshu.io/upload_images/854027-3c7814736a8da128.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+`filter()` 函数接受一个 `Func1` 对象，即只有一个参数的函数。`Func1` 有一个 Object 对象来作为它的参数类型并且返回 Boolean 对象。只要条件符合 `filter()` 函数就会返回 true。此时，值会发射出去并且所有的观察者都会接收到。
+
+```Java
+    private void performFilter() {
+        mAppsAdapter.clear();
+        Observable.from(mAppInfos)
+                .filter(new Func1<AppInfo, Boolean>() {
+                    @Override
+                    public Boolean call(AppInfo appInfo) { // 过滤出以 C 开头的 AppInfo
+                        return appInfo.getName().startsWith("C");
+                    }
+                })
+                .subscribe(new Action1<AppInfo>() {
+                    @Override
+                    public void call(AppInfo appInfo) {
+                        mAppsAdapter.add(appInfo);
+                    }
+                });
+    }
+```
+以上函数，遍历已安装的应用列表，只展示以字母 C 开头的已安装的应用
+
+### take()
+此函数的示意图为:
+
+![](http://upload-images.jianshu.io/upload_images/854027-29d62624c96fa6ce.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+`take()` 函数用整数 N 来作为一个参数，从原始的序列中发射前 N 个元素
+```Java
+    private void performTake() {
+        mAppsAdapter.clear();
+        Observable.from(mAppInfos)
+                .take(5) // 显示序列头 5 个 AppInfo
+                .subscribe(new Action1<AppInfo>() {
+                    @Override
+                    public void call(AppInfo appInfo) {
+                        mAppsAdapter.add(appInfo);
+                    }
+                });
+    }
+```
+
+### takeLast()
+此函数的示意图为:
+
+![](http://upload-images.jianshu.io/upload_images/854027-2151fcd5de327c27.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+`takeLast()` 函数用整数 N 来作为一个参数，从原始的序列中发射后 N 个元素
+
+```Java
+    private void performTakeLast() {
+        mAppsAdapter.clear();
+        Observable.from(mAppInfos)
+                .takeLast(5) // 显示序列后 5 个 AppInfo
+                .subscribe(new Action1<AppInfo>() {
+                    @Override
+                    public void call(AppInfo appInfo) {
+                        mAppsAdapter.add(appInfo);
+                    }
+                });
+    }
+```
+
+### distinct()
+此函数的示意图为:
+
+![](http://upload-images.jianshu.io/upload_images/854027-8f8a4188b273e33a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+如果我们想对一个指定的值仅处理一次该怎么办？我们可以对我们的序列使用 `distinct()` 函数去掉重复的。就像 `takeLast()` 一样，`distinct()` 作用于一个完整的序列，然后得到重复的过滤项，它需要记录每一个发射的值。如果你在处理一大堆序列或者大的数据记得关注内存使用情况。
+
+```Java
+    private void performDistinct() { // 获取序列的头三条数据，然后重复三次，最后将重复去掉
+        mAppsAdapter.clear();
+        Observable.from(mAppInfos)
+                .take(3)
+                .repeat(3)
+                .distinct()
+                .subscribe(new Action1<AppInfo>() {
+                    @Override
+                    public void call(AppInfo appInfo) {
+                        mAppsAdapter.add(appInfo);
+                    }
+                });
+    }
+```
+
+### distinctUntilChanged()
+此函数示意图为:
+
+![](http://upload-images.jianshu.io/upload_images/854027-f0352e58f4c71a39.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+`ditinctUntilChanged()` 过滤函数能做到这一点。它能轻易的忽略掉所有的重复并且只发射出新的值。
+
+```Java
+
+```
+### first()
+此函数示意图为:
+
+![](http://upload-images.jianshu.io/upload_images/854027-9dddfe0cad6237de.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+`first()` 方法, 它们从 Observable 中只发射第一个元素。传 Func1 作为参数，：一个可以确定我们感兴趣的第一个符合约束条件的元素。
+
+```Java
+
+    private void performFirst() { // 过滤出序列中第一个以 C 开头的 AppInfo
+        mAppsAdapter.clear();
+        Observable.from(mAppInfos)
+                .first(new Func1<AppInfo, Boolean>() {
+                    @Override
+                    public Boolean call(AppInfo appInfo) {
+                        return appInfo.getName().startsWith("C");
+                    }
+                })
+                .subscribe(new Action1<AppInfo>() {
+                    @Override
+                    public void call(AppInfo appInfo) {
+                        mAppsAdapter.add(appInfo);
+                    }
+                });
+    }
+```
+
+### last()
+此函数示意图为:
+
+![](http://upload-images.jianshu.io/upload_images/854027-294d5eb56fab0a3e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+`last()` 方法, 它们从 Observable 中只发射最后一个元素。传Func1作为参数，：一个可以确定我们感兴趣的最后一个的符合约束条件的元素。
+
+```Java
+    private void performLast() { // 过滤出序列中最后一个以 C 开头的 AppInfo
+        mAppsAdapter.clear();
+        Observable.from(mAppInfos)
+                .last(new Func1<AppInfo, Boolean>() {
+                    @Override
+                    public Boolean call(AppInfo appInfo) {
+                        return appInfo.getName().startsWith("C");
+                    }
+                })
+                .subscribe(new Action1<AppInfo>() {
+                    @Override
+                    public void call(AppInfo appInfo) {
+                        mAppsAdapter.add(appInfo);
+                    }
+                });
+    }
+```
+
+### skip() & skipLast()
+`skip()` 此函数的示意图为：
+
+![](http://upload-images.jianshu.io/upload_images/854027-fb49bf3fd49e27c4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+`skipLast()` 此函数的示意图为：
+
+![](http://upload-images.jianshu.io/upload_images/854027-922e8efb8da278fe.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 
+`skip()` 和 `skipLast()` 函数与 `take()` 和 `takeLast()` 相对应。它们用整数 N 作参数，从本质上来说，它们不让 Observable 发射前 N 个或者后 N 个值。如果我们知道一个序列以没有太多用的“可控”元素开头或结尾时我们可以使用它。
 
+```Java
+// skip()
 
+    private void performSkip() { // 跳过头两条 AppInfo
+        mAppsAdapter.clear();
+        Observable.from(mAppInfos)
+                .skip(2)
+                .subscribe(new Action1<AppInfo>() {
+                    @Override
+                    public void call(AppInfo appInfo) {
+                        mAppsAdapter.add(appInfo);
+                    }
+                });
+    }
+```
+
+```Java
+// skipLast()
+
+    private void performSkipLast() { // 跳过最后两条 AppInfo
+        mAppsAdapter.clear();
+        Observable.from(mAppInfos)
+                .skipLast(2)
+                .subscribe(new Action1<AppInfo>() {
+                    @Override
+                    public void call(AppInfo appInfo) {
+                        mAppsAdapter.add(appInfo);
+                    }
+                });
+    }
+```
+
+### elementAt()
+此函数的示意图：
+
+![](http://upload-images.jianshu.io/upload_images/854027-78645ec37d3c2312.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+如果我们只想要可观测序列发射的第五个元素该怎么办？elementAt() 函数仅从一个序列中发射第 n 个元素然后就完成了。
+如果我们想查找第五个元素但是可观测序列只有三个元素可供发射时该怎么办？我们可以使用 `elementAtOrDefault()` 。下图展示了如何通过使用 elementAt(2) 从一个序列中选择第三个元素以及如何创建一个只发射指定元素的新的 Observable。
+
+```Java
+    private void performElementAt() { // 发射序列中的第 4 个元素，如果没有默认发射序列中第一个元素
+        mAppsAdapter.clear();
+        Observable.from(mAppInfos)
+                .elementAtOrDefault(3, mAppInfos.get(0))
+                .subscribe(new Action1<AppInfo>() {
+                    @Override
+                    public void call(AppInfo appInfo) {
+                        mAppsAdapter.add(appInfo);
+                    }
+                });
+    }
+```
+
+### sample()
+此函数的示意图：
+
+![](http://upload-images.jianshu.io/upload_images/854027-3687df179fcc1fe3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+如果我们想让 App 列表美妙发射一个元素，但是只是每 3 秒才显示当前发射的元素，更恰当的例子是温度传感器。它每秒都会发射当前室内的温度。说实话，我们并不认为温度会变化这么快，我们可以使用一个小的发射间隔。
+这时候就可以用到 `sample()`
+
+```Java
+    private void performSample() { // 每秒发出一个 AppInfo，但是每隔三秒的时候才显示出来
+        mAppsAdapter.clear();
+        mSampleInterval = Observable.interval(1, TimeUnit.SECONDS)
+                .map(new Func1<Long, AppInfo>() {
+                    @Override
+                    public AppInfo call(Long aLong) {
+                        if (aLong.intValue() == mAppInfos.size() - 1) {
+                            if (!mSampleInterval.isUnsubscribed()) {
+                                mSampleInterval.unsubscribe();
+                            }
+                        }
+                        return null;
+                    }
+                })
+                .sample(3, TimeUnit.SECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<AppInfo>() {
+                    @Override
+                    public void call(AppInfo appInfo) {
+                        mAppsAdapter.add(appInfo);
+                    }
+                });
+    }
+```
+
+### timeout()
+此函数的示意图为：
+
+![](http://upload-images.jianshu.io/upload_images/854027-08cb1213f740d923.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+假设我们工作的是一个时效性的环境，我们温度传感器每秒都在发射一个温度值。我们想让它每隔两秒至少发射一个，我们可以使用 `timeout()` 函数来监听源可观测序列,就是在我们设定的时间间隔内如果没有得到一个值则发射一个错误。我们可以认为 `timeout()` 为一个 Observable 的限时的副本。如果在指定的时间间隔内 Observable 不发射值的话，它监听的原始的 Observable 时就会触发 `onError()` 函数。类似的还可以用于网络请求超时的异常处理
+
+```Java
+    private void performTimeout() {
+        mAppsAdapter.clear();
+        mTimeoutInterval = Observable.interval(1, 3, TimeUnit.SECONDS)  // 第 1 秒时发射一个 AppInfo, 之后每隔 3 秒发射一个 AppInfo
+                .map(new Func1<Long, AppInfo>() {
+                    @Override
+                    public AppInfo call(Long aLong) {
+                        if (aLong.intValue() == mAppInfos.size() - 3) {
+                            if (!mTimeoutInterval.isUnsubscribed()) {
+                                mTimeoutInterval.unsubscribe();
+                            }
+                        }
+                        return mAppInfos.get(aLong.intValue());
+                    }
+                })
+                .timeout(2, TimeUnit.SECONDS) // 超时时间设置为 2 秒
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<AppInfo>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        ToastUtils.SHORT.show(getBaseContext(), "Timeout!!!!");
+                    }
+
+                    @Override
+                    public void onNext(AppInfo appInfo) {
+                        mAppsAdapter.add(appInfo);
+                    }
+                });
+    }
+```
+
+### debounce()
+此函数的示意图:
+
+![](http://upload-images.jianshu.io/upload_images/854027-2aede4f9f55f72bb.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+`debounce()` 函数过滤掉由 Observable 发射的速率过快的数据；如果在一个指定的时间间隔过去了仍旧没有发射一个，那么它将发射**最后的那个**。
+就像 `sample()` 和 `timeout()` 函数一样，`debounce()` 使用 TimeUnit 对象指定时间间隔。
+下图展示了多久从 Observable 发射一次新的数据，`debounce()` 函数开启一个内部定时器，如果在这个时间间隔内没有新的数据发射，则新的 Observable 发射出最后一个数据：
+
+> debounce 是一个非常有用的函数，在 [RxBinding](https://github.com/JakeWharton/RxBinding) 中，就使用 debounce 来解决多次点击按钮等问题
+
+```Java
+    private void performDebounce() {
+        mAppsAdapter.clear();
+        mDebounceInterval = Observable.interval(2, TimeUnit.SECONDS)
+                .map(new Func1<Long, AppInfo>() {
+                    @Override
+                    public AppInfo call(Long aLong) {
+                        if (aLong.intValue() == mAppInfos.size() - 1) {
+                            if (!mDebounceInterval.isUnsubscribed()) {
+                                mDebounceInterval.unsubscribe();
+                            }
+                        }
+                        return mAppInfos.get(aLong.intValue());
+                    }
+                })
+                .debounce(1, TimeUnit.SECONDS) // 通过修改数值来显示不同的结果
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<AppInfo>() {
+                    @Override
+                    public void call(AppInfo appInfo) {
+                        mAppsAdapter.add(appInfo);
+                    }
+                });
+    }
+```

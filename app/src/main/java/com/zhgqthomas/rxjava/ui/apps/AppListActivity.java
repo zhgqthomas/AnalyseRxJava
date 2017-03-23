@@ -179,7 +179,7 @@ public class AppListActivity extends BaseActivity {
                         return mAppInfos.get(aLong.intValue());
                     }
                 })
-                .debounce(1, TimeUnit.SECONDS) // 修改数值来显示不同的结果
+                .debounce(1, TimeUnit.SECONDS) // 通过修改数值来显示不同的结果
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Action1<AppInfo>() {
                     @Override
@@ -317,13 +317,14 @@ public class AppListActivity extends BaseActivity {
     }
 
     private void performDistinctUntilChanged() {
+        //
         mAppsAdapter.clear();
-        mDistinctInterval = Observable.interval(2, TimeUnit.SECONDS)
+        mDistinctInterval = Observable.interval(1, TimeUnit.SECONDS)
                 .map(new Func1<Long, AppInfo>() {
                     @Override
                     public AppInfo call(Long aLong) {
 
-                        if (aLong.intValue() == mAppInfos.size() - 3) {
+                        if (aLong.intValue() == mAppInfos.size() - 1) {
                             if (!mDistinctInterval.isUnsubscribed()) {
                                 mDistinctInterval.unsubscribe();
                             }
@@ -363,7 +364,7 @@ public class AppListActivity extends BaseActivity {
     private void performTakeLast() {
         mAppsAdapter.clear();
         Observable.from(mAppInfos)
-                .takeLast(5)
+                .takeLast(5) // 显示序列后 5 个 AppInfo
                 .subscribe(new Action1<AppInfo>() {
                     @Override
                     public void call(AppInfo appInfo) {
@@ -375,7 +376,7 @@ public class AppListActivity extends BaseActivity {
     private void performTake() {
         mAppsAdapter.clear();
         Observable.from(mAppInfos)
-                .take(5)
+                .take(5) // 显示序列头 5 个 AppInfo
                 .subscribe(new Action1<AppInfo>() {
                     @Override
                     public void call(AppInfo appInfo) {
