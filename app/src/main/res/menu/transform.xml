@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/map"
+        android:title="@string/map"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/flat_map"
+        android:title="@string/flat_map"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/concat_map"
+        android:title="@string/concat_map"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/switch_map"
+        android:title="@string/switch_map"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/scan"
+        android:title="@string/scan"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/group_by"
+        android:title="@string/group_by"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/buffer"
+        android:title="@string/buffer"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/window"
+        android:title="@string/window"
+        app:showAsAction="never"
+        />
+
+</menu>

@@ -12,14 +12,17 @@ public class AppInfo implements Comparable<AppInfo> {
 
     long mLastUpdateTime;
 
+    long mFirstInstallTime;
+
     String mName;
 
     String mIcon;
 
-    public AppInfo(String name, String icon, long lastUpdateTime) {
+    public AppInfo(String name, String icon, long lastUpdateTime, long firstInstallTime) {
         this.mLastUpdateTime = lastUpdateTime;
         this.mName = name;
         this.mIcon = icon;
+        this.mFirstInstallTime = firstInstallTime;
     }
 
     @Override

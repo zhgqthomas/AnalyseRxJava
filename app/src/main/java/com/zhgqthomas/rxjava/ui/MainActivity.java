@@ -7,10 +7,10 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
 
 import com.zhgqthomas.rxjava.R;
-import com.zhgqthomas.rxjava.ui.apps.AppListActivity;
+import com.zhgqthomas.rxjava.ui.apps.FilterObservablesActivity;
+import com.zhgqthomas.rxjava.ui.apps.TransformObservablesActivity;
 import com.zhgqthomas.rxjava.ui.base.BaseActivity;
 
-import butterknife.BindView;
 import butterknife.OnClick;
 
 public class MainActivity extends BaseActivity {
@@ -27,8 +27,13 @@ public class MainActivity extends BaseActivity {
         setSupportActionBar((Toolbar) findViewById(R.id.tool_bar));
     }
 
-    @OnClick(R.id.operator)
-    void operatorClicked() {
-        startActivity(AppListActivity.getStartIntent(this));
+    @OnClick(R.id.filter_btn)
+    void startFilterObservables() {
+        startActivity(FilterObservablesActivity.getStartIntent(this));
+    }
+
+    @OnClick(R.id.transform_btn)
+    void startTransformObservables() {
+        startActivity(TransformObservablesActivity.getStartIntent(this));
     }
 }

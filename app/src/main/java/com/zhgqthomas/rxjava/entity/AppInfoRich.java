@@ -45,6 +45,7 @@ public class AppInfoRich implements Comparable<AppInfoRich> {
         try {
             mPackageInfo = context.getPackageManager().getPackageInfo(getPackageName(), 0);
         } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
         }
     }
 

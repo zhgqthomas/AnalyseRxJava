@@ -40,12 +40,12 @@ import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 
-public class AppListActivity extends BaseActivity {
+public class FilterObservablesActivity extends BaseActivity {
 
-    private static final String TAG = LogUtils.makeLogTag(AppListActivity.class);
+    private static final String TAG = LogUtils.makeLogTag(FilterObservablesActivity.class);
 
     public static Intent getStartIntent(Context context) {
-        return new Intent(context, AppListActivity.class);
+        return new Intent(context, FilterObservablesActivity.class);
     }
 
     @BindView(R.id.apps_recycler_view)
@@ -67,6 +67,9 @@ public class AppListActivity extends BaseActivity {
         setContentView(R.layout.activity_app_list);
 
         setSupportActionBar((Toolbar) findViewById(R.id.tool_bar));
+        if (null != getSupportActionBar()) {
+            getSupportActionBar().setTitle(R.string.filter_observable);
+        }
 
         mAppsAdapter = new AppListAdapter(this, new ArrayList<AppInfo>());
         mAppsRecyclerView.setLayoutManager(
@@ -99,7 +102,7 @@ public class AppListActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.app_list, menu);
+        getMenuInflater().inflate(R.menu.filter, menu);
         return true;
     }
 
@@ -495,6 +498,7 @@ public class AppListActivity extends BaseActivity {
                 .subscribe(new Subscriber<List<AppInfo>>() {
                     @Override
                     public void onCompleted() {
+                        mAppsRefreshLayout.setRefreshing(false);
                     }
 
                     public void onError(Throwable e) {
@@ -507,7 +511,6 @@ public class AppListActivity extends BaseActivity {
                         mAppInfos.addAll(appInfos);
                         mAppsRecyclerView.setVisibility(View.VISIBLE);
                         mAppsAdapter.setData(appInfos);
-                        mAppsRefreshLayout.setRefreshing(false);
                     }
                 });
     }
@@ -520,12 +523,13 @@ public class AppListActivity extends BaseActivity {
                 .map(new Func1<ResolveInfo, AppInfo>() {
                     @Override
                     public AppInfo call(ResolveInfo info) {
-                        AppInfoRich appInfoRich = new AppInfoRich(AppListActivity.this, info);
+                        AppInfoRich appInfoRich = new AppInfoRich(FilterObservablesActivity.this, info);
                         Bitmap icon = BitmapUtils.drawableToBitmap(appInfoRich.getIcon());
                         String name = appInfoRich.getName();
                         String iconPath = App.getInstance().getFilesDir() + "/" + name;
                         BitmapUtils.storeBitmap(App.getInstance(), icon, name);
-                        return new AppInfo(name, iconPath, appInfoRich.getLastUpdateTime());
+                        return new AppInfo(name, iconPath,
+                                appInfoRich.getLastUpdateTime(), appInfoRich.getFirstInstallTime());
                     }
                 });
     }

@@ -4,8 +4,8 @@ import android.content.Context;
 import android.widget.Toast;
 
 public class ToastUtils {
-    public static ToastUtils LONG = new ToastUtils(Toast.LENGTH_LONG);
-    public static ToastUtils SHORT = new ToastUtils(Toast.LENGTH_SHORT);
+    public static final ToastUtils LONG = new ToastUtils(Toast.LENGTH_LONG);
+    public static final ToastUtils SHORT = new ToastUtils(Toast.LENGTH_SHORT);
 
     private final int duration;
 

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
-    tools:context="com.zhgqthomas.rxjava.ui.apps.AppListActivity">
+    tools:context="com.zhgqthomas.rxjava.ui.apps.FilterObservablesActivity">
 
     <include layout="@layout/tool_bar" />
 
